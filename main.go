@@ -34,7 +34,7 @@ func main() {
 	var udid = flag.String("udid", "", "Device UDID")
 	var devicesCmd = flag.Bool("devices", false, "List devices then exit")
 	var pullCmd = flag.Bool("pull", false, "Pull video")
-	var pushSpec = flag.String("pushSpec", "tcp://127.0.0.1:7879", "NanoMsg spec to push h264 nalus to")
+	var pushSpec = flag.String("pushSpec", "tcp://127.0.0.1:7879", "push image to tcp address")
 	var file = flag.String("file", "", "File to save h264 nalus into")
 	var verbose = flag.Bool("v", false, "Verbose Debugging")
 	var enableCmd = flag.Bool("enable", false, "Enable device")
