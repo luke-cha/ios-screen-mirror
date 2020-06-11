@@ -31,8 +31,12 @@ go build
 ./ios-video-pull -stream
 ```
 
-2. run
+2. clone this project, build and run
 ```
+git clone https://github.com/jjunghyup/ios-screen-mirror.git
+cd ios-screen-mirror
+go get
+go build
 ./ios-screen-mirror -pull
 ```
 
