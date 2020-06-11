@@ -42,3 +42,6 @@ go build
 ```
 
 3. go to `http://localhost:8000` on your browser and click `open` button
+
+### ETC
+[in detail](https://velog.io/@chacha/아이폰-미러링-툴-소개)
