@@ -117,19 +117,6 @@ func stripSerial(usb *gousb.Device) string {
 	return stripCtlFromBytes(str)
 }
 
-func stripCtlFromBytes(str string) string {
-	b := make([]byte, len(str))
-	var bl int
-	for i := 0; i < len(str); i++ {
-		c := str[i]
-		if c >= 32 && c != 127 {
-			b[bl] = c
-			bl++
-		}
-	}
-	return string(b[:bl])
-}
-
 func findIosDevices(ctx *gousb.Context) ([]*gousb.Device, error) {
 	return ctx.OpenDevices(func(dev *gousb.DeviceDesc) bool {
 		for _, subc := range getVendorSubclasses(dev) {
