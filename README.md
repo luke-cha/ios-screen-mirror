@@ -12,6 +12,7 @@ The test was performed on macos, and it was not confirmed whether it could be pe
  ```
  brew install libusb
  brew install pkg-config
+ brew install ffmpeg
  brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
  ```
 
