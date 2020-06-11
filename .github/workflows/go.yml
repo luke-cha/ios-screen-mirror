@@ -12,6 +12,14 @@ jobs:
     name: Build
     runs-on: macos-latest
     steps:
+    - name: Install libusb by homebrew
+      run: brew install libusb
+      
+    - name: Install pkg-config by homebrew
+      run: brew install pkg-config
+
+    - name: Install librarys by homebrew
+      run: brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
