@@ -2,8 +2,8 @@
 This project is about the tool to transfer the screen of ios device in jpeg format to the designated place in tcp method.
 
  - For source development, the following github contents were referenced.
-   . https://github.com/danielpaulus/quicktime_video_hack
-   . https://github.com/nanoscopic/ios_video_pull
+   - https://github.com/danielpaulus/quicktime_video_hack
+   - https://github.com/nanoscopic/ios_video_pull
    
 ### Environment
 The test was performed on macos, and it was not confirmed whether it could be performed on other os.
