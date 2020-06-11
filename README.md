@@ -7,7 +7,7 @@ This project is about the tool to transfer the screen of ios device in jpeg form
    
 ### Environment
 The test was performed on macos, and it was not confirmed whether it could be performed on other os.
- - go version : 1.14
+ - go version : 1.14 (Recommended for version 1.12 or higher)
  - setup
  ```
  brew install libusb
