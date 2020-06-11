@@ -406,7 +406,7 @@ func sendQTEnable(device *gousb.Device) {
 func sendQTDisable(device *gousb.Device) {
 	val, err := device.Control(0x40, 0x52, 0x00, 0x00, []byte{})
 	if err != nil {
-		log.Warnf("Failed sending control transfer for enabling hidden QT config. Seems like this happens sometimes but it still works usually: $d, %s", val, err)
+		log.Warnf("Failed sending control transfer for enabling hidden QT config. Seems like this happens sometimes but it still works usually: %d, %s", val, err)
 	}
 	log.Debugf("Dsiabling QT config RC:%d", val)
 }
