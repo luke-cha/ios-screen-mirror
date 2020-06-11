@@ -42,7 +42,7 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build -v -o ios-screen-mirror
 
     - name: Test
       run: go test -v .
