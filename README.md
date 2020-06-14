@@ -24,13 +24,13 @@ go build
 ### Run
 0. prepare ios device and connect to your mac
 
-1. clone ios-video-pull(https://github.com/nanoscopic/ios_video_pull), build and run
+1. clone ios-video-stream(https://github.com/nanoscopic/ios_video_stream.git), build and run
 ```
-git clone https://github.com/nanoscopic/ios_video_pull.git
-cd ios_video_pull
+git clone https://github.com/nanoscopic/ios_video_stream.git
+cd ios_video_stream
 go get
 go build
-./ios-video-pull -stream
+./ios-video-stream -stream
 ```
 
 2. clone this project, build and run
