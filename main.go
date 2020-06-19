@@ -361,7 +361,6 @@ func startWithConsumer(consumer screencapture.CmSampleBufConsumer, udid string, 
 		var i int = 0
 		for {
 			time.Sleep(500 * time.Millisecond)
-			_ = usbDevice.Close()
 			var activated bool
 			usbDevice, activated = openDevice(ctx, udid)
 			if activated {
