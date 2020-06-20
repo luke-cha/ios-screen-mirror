@@ -1,3 +1,5 @@
+github.com/3d0c/gmf v0.0.0-20200614092945-e58d8d5a6035 h1:QZb1aMKxiYdGGieyIDmXuw9I9YcGWGViTrpQ6vcZX7Q=
+github.com/3d0c/gmf v0.0.0-20200614092945-e58d8d5a6035/go.mod h1:0QMRcUq2JsDECeAq7bj4h79k7XbhtTsrPUQf6G7qfPs=
 github.com/Microsoft/go-winio v0.4.11 h1:zoIOcVf0xPN1tnMVbTtEdI+P8OofVk3NObnwOQ6nK2Q=
 github.com/Microsoft/go-winio v0.4.11/go.mod h1:VhR8bwka0BXejwEJY73c50VrPtXAaKcyvVC4A4RozmA=
 github.com/cheekybits/genny v1.0.0/go.mod h1:+tQajlRqAUrPI7DOSpB0XAqZYtQakVtB7wXkRAgjxjQ=

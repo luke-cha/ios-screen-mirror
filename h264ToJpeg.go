@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"github.com/3d0c/gmf"
 	"image"
 	"image/jpeg"
 	"io"
 	"time"
+
+	"github.com/3d0c/gmf"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -40,7 +41,7 @@ func h264ToJpeg() {
 
 	cc.SetTimeBase(gmf.AVR{Num: 1, Den: 1})
 
-	cc.SetPixFmt(gmf.AV_PIX_FMT_RGBA).SetWidth(srcVideoStream.CodecCtx().Width() / 2).SetHeight(srcVideoStream.CodecCtx().Height() / 2)
+	cc.SetPixFmt(gmf.AV_PIX_FMT_RGBA).SetWidth(int(float64(srcVideoStream.CodecCtx().Width()) * screenReductionRatio)).SetHeight(int(float64(srcVideoStream.CodecCtx().Height()) * screenReductionRatio))
 	if codec.IsExperimental() {
 		cc.SetStrictCompliance(gmf.FF_COMPLIANCE_EXPERIMENTAL)
 	}
@@ -191,7 +192,7 @@ func encode(cc *gmf.CodecCtx, frames []*gmf.Frame, drain int) {
 		}
 
 		if result > 500 || prevImg == nil {
-			log.Printf("compare result : %d\n", result)
+			log.Debugf("compare result : %d\n", result)
 			sendImage(img)
 			prevImg = img
 		}

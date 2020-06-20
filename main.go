@@ -16,6 +16,7 @@ import (
 
 	"go.nanomsg.org/mangos/v3"
 	"go.nanomsg.org/mangos/v3/protocol/push"
+
 	// register transports
 	_ "github.com/nanomsg/mangos/transport/all"
 
@@ -23,11 +24,12 @@ import (
 )
 
 var (
-	pr       *io.PipeReader
-	pw       *io.PipeWriter
-	pushSock mangos.Socket
-	prevImg  *image.RGBA
-	fileMode bool
+	pr                   *io.PipeReader
+	pw                   *io.PipeWriter
+	pushSock             mangos.Socket
+	prevImg              *image.RGBA
+	fileMode             bool
+	screenReductionRatio float64
 )
 
 func main() {
@@ -36,12 +38,12 @@ func main() {
 	var pullCmd = flag.Bool("pull", false, "Pull video")
 	var pushSpec = flag.String("pushSpec", "tcp://127.0.0.1:7879", "push image to tcp address")
 	var file = flag.String("file", "", "File to save h264 nalus into")
+	var reductionRatio = flag.Float64("screenRatio", 0.5, "Screen reduction ratio")
 	var verbose = flag.Bool("v", false, "Verbose Debugging")
-	var enableCmd = flag.Bool("enable", false, "Enable device")
-	var disableCmd = flag.Bool("disable", false, "Disable device")
 	flag.Parse()
 
 	log.SetFormatter(&log.JSONFormatter{})
+	screenReductionRatio = *reductionRatio
 
 	if *verbose {
 		log.Info("Set Debug mode")
@@ -53,10 +55,6 @@ func main() {
 		return
 	} else if *pullCmd {
 		gopull(*pushSpec, *file, *udid)
-	} else if *enableCmd {
-		enable(*udid)
-	} else if *disableCmd {
-		disable(*udid)
 	} else {
 		flag.Usage()
 	}
@@ -204,125 +202,6 @@ func setupSockets(pushSpec string) (pushSock mangos.Socket) {
 	}
 
 	return pushSock
-}
-
-func enable(udid string) {
-	ctx := gousb.NewContext()
-
-	var usbDevice *gousb.Device = nil
-	var activated bool
-	if udid == "" {
-		devs, err := findIosDevices(ctx)
-		if err != nil {
-			log.Errorf("Error finding iOS Devices - %s", err)
-		}
-		for _, dev := range devs {
-			oneActivated := false
-			oneUdid := ""
-			if usbDevice == nil {
-				oneUdid = stripSerial(dev)
-				subCs := getVendorSubclasses(dev.Desc)
-				for _, subc := range subCs {
-					if int(subc) == 42 {
-						oneActivated = true
-					}
-				}
-				if oneActivated == false {
-					usbDevice = dev
-					udid = oneUdid
-					activated = oneActivated
-				} else {
-					_ = dev.Close()
-				}
-			} else {
-				_ = dev.Close()
-			}
-		}
-		if udid != "" {
-			log.Infof("Using first disabled device; uuid=%s", udid)
-		}
-	} else {
-		usbDevice, activated = openDevice(ctx, udid)
-		log.Info("Opened device")
-	}
-
-	if usbDevice == nil {
-		log.Info("Could not find a disabled device to activate")
-		_ = ctx.Close()
-		return
-	}
-
-	if activated == true {
-		log.Info("Device already enabled")
-		_ = usbDevice.Close()
-		_ = ctx.Close()
-		return
-	}
-
-	sendQTEnable(usbDevice)
-
-	_ = usbDevice.Close()
-	_ = ctx.Close()
-}
-
-func disable(udid string) {
-	ctx := gousb.NewContext()
-
-	var usbDevice *gousb.Device = nil
-	var activated bool
-	if udid == "" {
-		devs, err := findIosDevices(ctx)
-		if err != nil {
-			log.Errorf("Error finding iOS Devices - %s", err)
-		}
-		for _, dev := range devs {
-			oneActivated := true
-			oneUdid := ""
-			if usbDevice == nil {
-				oneUdid = stripSerial(dev)
-				subcs := getVendorSubclasses(dev.Desc)
-				for _, subc := range subcs {
-					if int(subc) == 42 {
-						oneActivated = true
-					}
-				}
-				if oneActivated == true {
-					usbDevice = dev
-					udid = oneUdid
-					activated = oneActivated
-				} else {
-					_ = dev.Close()
-				}
-			} else {
-				_ = dev.Close()
-			}
-		}
-		if udid != "" {
-			log.Infof("Using first enabled device; uuid=%s", udid)
-		}
-	} else {
-		usbDevice, activated = openDevice(ctx, udid)
-
-		log.Info("Opened device")
-	}
-
-	if usbDevice == nil {
-		log.Info("Could not find a enabled device to disabled")
-		_ = ctx.Close()
-		return
-	}
-
-	if activated == false {
-		log.Info("Device already disabled")
-		_ = usbDevice.Close()
-		_ = ctx.Close()
-		return
-	}
-
-	sendQTDisable(usbDevice)
-
-	_ = usbDevice.Close()
-	_ = ctx.Close()
 }
 
 func startWithConsumer(consumer screencapture.CmSampleBufConsumer, udid string, stopChannel chan interface{}, stopChannel2 chan interface{}) bool {

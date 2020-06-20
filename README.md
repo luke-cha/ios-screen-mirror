@@ -44,5 +44,23 @@ go build
 
 3. go to `http://localhost:8000` on your browser and click `open` button
 
+### Usage
+```
+Usage of ./ios-screen-mirror:
+  -devices
+    	List devices then exit
+  -file string
+    	File to save h264 nalus into
+  -pull
+    	Pull video
+  -pushSpec string
+    	push image to tcp address (default "tcp://127.0.0.1:7879")
+  -screenRatio float
+    	Screen reduction ratio (default 0.5)
+  -udid string
+    	Device UDID
+  -v	Verbose Debugging
+```
+
 ### ETC
 [in detail](https://velog.io/@chacha/아이폰-미러링-툴-소개)
