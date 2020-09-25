@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/binary"
 	"errors"
 	"flag"
 	"fmt"
@@ -12,8 +13,6 @@ import (
 	"time"
 
 	"github.com/danielpaulus/quicktime_video_hack/screencapture"
-	"github.com/google/gousb"
-
 	"go.nanomsg.org/mangos/v3"
 	"go.nanomsg.org/mangos/v3/protocol/push"
 
@@ -59,85 +58,25 @@ func main() {
 		flag.Usage()
 	}
 }
-
 func devices() {
-	ctx := gousb.NewContext()
-
-	devs, err := findIosDevices(ctx)
+	deviceList, err := screencapture.FindIosDevices()
 	if err != nil {
-		log.Errorf("Error finding iOS Devices - %s", err)
+		printErrJSON(err, "Error finding iOS Devices")
 	}
+	log.Debugf("Found (%d) iOS Devices with UsbMux Endpoint", len(deviceList))
 
-	for _, dev := range devs {
-		serial := stripSerial(dev)
-		product, _ := dev.Product()
-		subcs := getVendorSubclasses(dev.Desc)
-		activated := 0
-		for _, subc := range subcs {
-			if int(subc) == 42 {
-				activated = 1
-			}
-		}
-		fmt.Printf("Bus: %d, Address: %d, Port: %d, UDID:%s, Name:%s, VID=%s, PID=%s, Activated=%d\n", dev.Desc.Bus, dev.Desc.Address, dev.Desc.Port, serial, product, dev.Desc.Vendor, dev.Desc.Product, activated)
-		_ = dev.Close()
-	}
-
-	_ = ctx.Close()
-}
-
-func openDevice(ctx *gousb.Context, uuid string) (*gousb.Device, bool) {
-	devs, err := findIosDevices(ctx)
 	if err != nil {
-		log.Errorf("Error finding iOS Devices - %s", err)
+		printErrJSON(err, "Error finding iOS Devices")
 	}
-	var foundDevice *gousb.Device = nil
-	activated := false
-	for _, dev := range devs {
-		serial := stripSerial(dev)
-		serial = stripCtlFromBytes(serial)
-		if serial == uuid {
-			foundDevice = dev
-			subcs := getVendorSubclasses(dev.Desc)
-			for _, subc := range subcs {
-				if int(subc) == 42 {
-					activated = true
-				}
-			}
-		} else {
-			_ = dev.Close()
-		}
-	}
-	return foundDevice, activated
+	output := screencapture.PrintDeviceDetails(deviceList)
+
+	printJSON(map[string]interface{}{"devices": output})
 }
 
-func stripSerial(usb *gousb.Device) string {
-	str, _ := usb.SerialNumber()
-	return stripCtlFromBytes(str)
-}
-
-func findIosDevices(ctx *gousb.Context) ([]*gousb.Device, error) {
-	return ctx.OpenDevices(func(dev *gousb.DeviceDesc) bool {
-		for _, subc := range getVendorSubclasses(dev) {
-			if subc == gousb.ClassApplication {
-				return true
-			}
-		}
-		return false
-	})
-}
-
-func getVendorSubclasses(desc *gousb.DeviceDesc) []gousb.Class {
-	subClasses := []gousb.Class{}
-	for _, conf := range desc.Configs {
-		for _, iface := range conf.Interfaces {
-			if iface.AltSettings[0].Class == gousb.ClassVendorSpec {
-				subClass := iface.AltSettings[0].SubClass
-				subClasses = append(subClasses, subClass)
-			}
-		}
-	}
-	return subClasses
-}
+//func stripSerial(usb *gousb.Device) string {
+//      str, _ := usb.SerialNumber()
+//      return stripCtlFromBytes(str)
+//}
 
 func gopull(pushSpec string, filename string, udid string) {
 	stopChannel := make(chan interface{})
@@ -205,88 +144,31 @@ func setupSockets(pushSpec string) (pushSock mangos.Socket) {
 }
 
 func startWithConsumer(consumer screencapture.CmSampleBufConsumer, udid string, stopChannel chan interface{}, stopChannel2 chan interface{}) bool {
-	ctx := gousb.NewContext()
-
-	var usbDevice *gousb.Device = nil
-	var activated bool = false
-	if udid == "" {
-		devs, err := findIosDevices(ctx)
-		if err != nil {
-			log.Errorf("Error finding iOS Devices - %s", err)
-		}
-		for _, dev := range devs {
-			if usbDevice == nil {
-				udid = stripSerial(dev)
-				subcs := getVendorSubclasses(dev.Desc)
-				for _, subc := range subcs {
-					if int(subc) == 42 {
-						activated = true
-					}
-				}
-				usbDevice = dev
-			} else {
-				dev.Close()
-			}
-		}
-	} else {
-		usbDevice, activated = openDevice(ctx, udid)
-		log.Info("Opened device")
+	device, err := FindIosDevice(udid)
+	if err != nil {
+		printErrJSON(err, "no device found to activate")
+		return false
 	}
 
-	if !activated {
-		log.Info("Not activated; attempting to activate")
-		sendQTEnable(usbDevice)
-
-		var i int = 0
-		for {
-			time.Sleep(500 * time.Millisecond)
-			var activated bool
-			usbDevice, activated = openDevice(ctx, udid)
-			if activated {
-				break
-			}
-			i++
-			if i > 5 {
-				log.Debug("Failed activating config")
-				return false
-			}
-		}
+	device, err = EnableQTConfig(device)
+	if err != nil {
+		printErrJSON(err, "Error enabling QT config")
+		return false
 	}
 
 	adapter := UsbAdapter{}
 
 	mp := screencapture.NewMessageProcessor(&adapter, stopChannel, consumer)
 
-	err := startReading(&adapter, usbDevice, &mp, stopChannel2)
+	err = startReading(&adapter, device, &mp, stopChannel2)
+	consumer.Stop()
 	if err != nil {
 		log.Errorf("startReading failure - %s", err)
 		log.Info("Closing device")
-		_ = usbDevice.Close()
-		_ = ctx.Close()
 		return false
 	}
-
 	log.Info("Closing device")
-	_ = usbDevice.Close()
-	_ = ctx.Close()
-
 	return true
-}
-
-func sendQTEnable(device *gousb.Device) {
-	val, err := device.Control(0x40, 0x52, 0x00, 0x02, []byte{})
-	if err != nil {
-		log.Warnf("Failed sending control transfer for enabling hidden QT config. Seems like this happens sometimes but it still works usually: %d, %s", val, err)
-	}
-	log.Debugf("Enabling QT config RC:%d", val)
-}
-
-func sendQTDisable(device *gousb.Device) {
-	val, err := device.Control(0x40, 0x52, 0x00, 0x00, []byte{})
-	if err != nil {
-		log.Warnf("Failed sending control transfer for enabling hidden QT config. Seems like this happens sometimes but it still works usually: %d, %s", val, err)
-	}
-	log.Debugf("Dsiabling QT config RC:%d", val)
 }
 
 func waitForSigInt(stopChannel chan interface{}, stopChannel2 chan interface{}, stopChannel3 chan bool) {
@@ -309,44 +191,42 @@ func waitForSigInt(stopChannel chan interface{}, stopChannel2 chan interface{}, 
 	}()
 }
 
-// Stuff below more or less copied from quicktime_video_hack/screencapture/usbadapter.go and other files in that directory
-// All of these stuff has to be copied in order to alter startReading due to non-exposed functions and variables
+func startReading(usa *UsbAdapter, device IosDevice, receiver screencapture.UsbDataReceiver, stopSignal chan interface{}) error {
+	ctx, cleanUp := createContext()
+	defer cleanUp()
 
-type UsbAdapter struct {
-	outEndpoint *gousb.OutEndpoint
-}
-
-func (usa UsbAdapter) WriteDataToUsb(bytes []byte) {
-	_, err := usa.outEndpoint.Write(bytes)
+	usbDevice, err := OpenDevice(ctx, device)
 	if err != nil {
-		log.Error("failed sending to usb", err)
+		return err
 	}
-}
+	if !device.IsActivated() {
+		return errors.New("device not activated for screen mirroring")
+	}
+	confignum, _ := usbDevice.ActiveConfigNum()
 
-func startReading(usa *UsbAdapter, usbDevice *gousb.Device, receiver screencapture.UsbDataReceiver, stopSignal chan interface{}) error {
-	var confignum int = 6
+	log.Debugf("Config is active: %d, QT config is: %d", confignum, device.QTConfigIndex)
 
-	config, err := usbDevice.Config(confignum)
+	config, err := usbDevice.Config(device.QTConfigIndex)
 	if err != nil {
 		return errors.New("Could not retrieve config")
 	}
 
 	log.Debugf("QT Config is active: %s", config.String())
 
-	/*val, err := usbDevice.Control(0x02, 0x01, 0, 0x86, make([]byte, 0))
-	  if err != nil {
-	      log.Debug("failed control", err)
-	  }
-	  log.Debugf("Clear Feature RC: %d", val)
+	val, err := usbDevice.Control(0x02, 0x01, 0, 0x86, make([]byte, 0))
+	if err != nil {
+		log.Debug("failed control", err)
+	}
+	log.Debugf("Clear Feature RC: %d", val)
 
-	  val, err = usbDevice.Control(0x02, 0x01, 0, 0x05, make([]byte, 0))
-	  if err != nil {
-	      log.Debug("failed control", err)
-	  }
-	  log.Debugf("Clear Feature RC: %d", val)*/
+	val, err = usbDevice.Control(0x02, 0x01, 0, 0x05, make([]byte, 0))
+	if err != nil {
+		log.Debug("failed control", err)
+	}
+	log.Debugf("Clear Feature RC: %d", val)
 
-	success, iface := findInterfaceForSubclass(config, 0x2a)
-	if !success {
+	iface, err := grabQuickTimeInterface(config)
+	if err != nil {
 		log.Debug("could not get Quicktime Interface")
 		return err
 	}
@@ -373,6 +253,7 @@ func startReading(usa *UsbAdapter, usbDevice *gousb.Device, receiver screencaptu
 		return err
 	}
 	log.Debugf("Outbound Bulk: %s", outEndpoint.String())
+
 	usa.outEndpoint = outEndpoint
 
 	stream, err := inEndpoint.NewStream(4096, 5)
@@ -381,24 +262,29 @@ func startReading(usa *UsbAdapter, usbDevice *gousb.Device, receiver screencaptu
 		return err
 	}
 	log.Debug("Endpoint claimed")
-	udid, _ := usbDevice.SerialNumber()
-	log.Infof("Device '%s' ready to stream ( click 'Settings-Developer-Reset Media Services' if nothing happens )", udid)
+	log.Infof("Device '%s' USB connection ready, waiting for ping..", device.SerialNumber)
 
 	go func() {
-		frameExtractor := screencapture.NewLengthFieldBasedFrameExtractor()
 		for {
-			buffer := make([]byte, 65536)
+			buffer := make([]byte, 4)
 
-			n, err := stream.Read(buffer)
+			n, err := io.ReadFull(stream, buffer)
 			if err != nil {
-				log.Error("couldn't read bytes", err)
+				log.Errorf("Failed reading 4bytes length with err:%s only received: %d", err, n)
 				return
 			}
 
-			frame, isCompleteFrame := frameExtractor.ExtractFrame(buffer[:n])
-			if isCompleteFrame {
-				receiver.ReceiveData(frame)
+			//the 4 bytes header are included in the length, so we need to subtract them
+			//here to know how long the payload will be
+			length := binary.LittleEndian.Uint32(buffer) - 4
+			dataBuffer := make([]byte, length)
+
+			n, err = io.ReadFull(stream, dataBuffer)
+			if err != nil {
+				log.Errorf("Failed reading payload with err:%s only received: %d/%d bytes", err, n, length)
+				return
 			}
+			receiver.ReceiveData(dataBuffer)
 		}
 	}()
 	if !fileMode {
@@ -422,33 +308,4 @@ func startReading(usa *UsbAdapter, usbDevice *gousb.Device, receiver screencaptu
 	sendQTDisable(usbDevice)
 
 	return nil
-}
-
-func grabOutBulk(setting gousb.InterfaceSetting) (int, error) {
-	for _, v := range setting.Endpoints {
-		if v.Direction == gousb.EndpointDirectionOut {
-			return v.Number, nil
-		}
-	}
-	return 0, errors.New("Outbound Bulkendpoint not found")
-}
-
-func grabInBulk(setting gousb.InterfaceSetting) (int, error) {
-	for _, v := range setting.Endpoints {
-		if v.Direction == gousb.EndpointDirectionIn {
-			return v.Number, nil
-		}
-	}
-	return 0, errors.New("Inbound Bulkendpoint not found")
-}
-
-func findInterfaceForSubclass(config *gousb.Config, subClass gousb.Class) (bool, *gousb.Interface) {
-	for _, ifaced := range config.Desc.Interfaces {
-		if ifaced.AltSettings[0].Class == gousb.ClassVendorSpec &&
-			ifaced.AltSettings[0].SubClass == subClass {
-			iface, _ := config.Interface(ifaced.Number, 0)
-			return true, iface
-		}
-	}
-	return false, nil
 }
