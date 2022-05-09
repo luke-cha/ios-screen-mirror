@@ -9,6 +9,5 @@ require (
 	github.com/nanomsg/mangos v2.0.0+incompatible
 	github.com/sirupsen/logrus v1.6.0
 	go.nanomsg.org/mangos/v3 v3.0.1
-	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 	nanomsg.org/go/mangos/v2 v2.0.8 // indirect
 )
