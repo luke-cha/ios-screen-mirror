@@ -51,7 +51,7 @@ jobs:
 
     - name: Build
       env:
-        PATH: "/usr/local/opt/ffmpeg@4/bin:$PATH"
+        PATH: "/usr/local/opt/llvm/bin:/usr/local/opt/ffmpeg@4/bin:$PATH"
         LDFLAGS: "-L/usr/local/opt/ffmpeg@4/lib"
         CPPFLAGS: "-I/usr/local/opt/ffmpeg@4/include"
         PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
