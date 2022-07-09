@@ -33,14 +33,16 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/ffmpeg/lib/pkgconfig/
 ```
 
 and then go to ios-screen-mirror
-```
 
 ```
 go get -u golang.org/x/sys
 go get github.com/3d0c/gmf
 
-go build
+brew install libusb
+brew install pkg-config
+brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
 
+go build
 ```
 
 ### Run
