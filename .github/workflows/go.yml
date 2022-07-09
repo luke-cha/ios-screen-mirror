@@ -22,16 +22,11 @@ jobs:
       run: brew install ffmpeg@4
 
     - name: Setup ffmpeg@4 dependency
-      run: export PATH="/usr/local/opt/ffmpeg@4/bin":$PATH
-    - name: Setup ffmpeg@4 dependency
-      run: export LDFLAGS="-L/usr/local/opt/ffmpeg@4/lib"
-    - name: Setup ffmpeg@4 dependency
-      run: export CPPFLAGS="-I/usr/local/opt/ffmpeg@4/include"
-    - name: Setup ffmpeg@4 dependency
-      run: export PKG_CONFIG_PATH=/usr/local/opt/ffmpeg@4/lib/pkgconfig
-
-    - name: check environment
-      run: echo $PKG_CONFIG_PATH
+      env:
+        PATH: "/usr/local/opt/ffmpeg@4/bin:$PATH"
+        LDFLAGS: "-L/usr/local/opt/ffmpeg@4/lib"
+        CPPFLAGS: "-I/usr/local/opt/ffmpeg@4/include"
+        PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
 
     - name: Install librarys by homebrew
       run: brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
