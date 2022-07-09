@@ -21,8 +21,7 @@ jobs:
     - name: Install ffmpeg@4 by homebrew
       run: brew install ffmpeg@4
 
-    - name: Setup ffmpeg@4 dependency
-      env:
+    - env:
         PATH: "/usr/local/opt/ffmpeg@4/bin:$PATH"
         LDFLAGS: "-L/usr/local/opt/ffmpeg@4/lib"
         CPPFLAGS: "-I/usr/local/opt/ffmpeg@4/include"
