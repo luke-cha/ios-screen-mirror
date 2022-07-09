@@ -19,7 +19,7 @@ jobs:
       run: brew install libusb
 
     - name: Install binutils by homebrew
-      run:brew install binutils
+      run: brew install binutils
 
     - name: Install pkg-config by homebrew
       run: brew install pkg-config
