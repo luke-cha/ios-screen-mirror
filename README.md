@@ -25,7 +25,7 @@ The test was performed on macos, and it was not confirmed whether it could be pe
  brew install pkg-config
  
  brew install ffmpeg@4
-  export LDFLAGS="-L/usr/local/opt/ffmpeg@4/lib"
+ export LDFLAGS="-L/usr/local/opt/ffmpeg@4/lib"
  export CPPFLAGS="-I/usr/local/opt/ffmpeg@4/include"
  export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:"/usr/local/opt/ffmpeg@4/lib/pkgconfig"
  
