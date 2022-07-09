@@ -54,9 +54,9 @@ jobs:
 
     - name: Build
       env:
-        PATH: "/usr/local/opt/llvm/bin:/usr/local/opt/ffmpeg@4/bin:$PATH"
-        LDFLAGS: "-L/usr/local/opt/ffmpeg@4/lib -L/usr/local/opt/llvm/lib"
-        CPPFLAGS: "-I/usr/local/opt/llvm/include -I/usr/local/opt/ffmpeg@4/include"
+        PATH: "/usr/local/opt/llvm/bin:/usr/local/opt/binutils/bin:/usr/local/opt/ffmpeg@4/bin:$PATH"
+        LDFLAGS: "-L/usr/local/opt/binutils/lib -L/usr/local/opt/ffmpeg@4/lib -L/usr/local/opt/llvm/lib"
+        CPPFLAGS: "-I/usr/local/opt/binutils/include -I/usr/local/opt/llvm/include -I/usr/local/opt/ffmpeg@4/include"
         PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
       run: go build -v -o ios-screen-mirror
 
