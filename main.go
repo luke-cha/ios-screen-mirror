@@ -158,7 +158,7 @@ func startWithConsumer(consumer screencapture.CmSampleBufConsumer, udid string, 
 
 	adapter := UsbAdapter{}
 
-	mp := screencapture.NewMessageProcessor(&adapter, stopChannel, consumer)
+	mp := screencapture.NewMessageProcessor(&adapter, stopChannel, consumer, false)
 
 	err = startReading(&adapter, device, &mp, stopChannel2)
 	consumer.Stop()
