@@ -5,7 +5,7 @@ This project is about the tool to transfer the screen of ios device in jpeg form
    - https://github.com/danielpaulus/quicktime_video_hack
    - https://github.com/nanoscopic/ios_video_pull
    
-### Environment & Build (Intel chip)
+### Environment & Build
 The test was performed on macos, and it was not confirmed whether it could be performed on other os.
  - go version : 1.14 (Recommended for version 1.12 or higher)
  - setup
@@ -13,22 +13,6 @@ The test was performed on macos, and it was not confirmed whether it could be pe
  brew install libusb
  brew install pkg-config
  brew install ffmpeg
- 
- brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
-  
- go get -v
- go build
- ```
-
-### Environment & Build (M1 chip)
- ```
- brew install libusb
- brew install pkg-config
- 
- brew install ffmpeg@4
- export LDFLAGS="-L/usr/local/opt/ffmpeg@4/lib"
- export CPPFLAGS="-I/usr/local/opt/ffmpeg@4/include"
- export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:"/usr/local/opt/ffmpeg@4/lib/pkgconfig"
  
  brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
   

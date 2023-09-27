@@ -18,6 +18,8 @@ github.com/danielpaulus/quicktime_video_hack v0.0.0-20200514194616-c4570b6b687c 
 github.com/danielpaulus/quicktime_video_hack v0.0.0-20200514194616-c4570b6b687c/go.mod h1:RWoT+WsCcDOx9Is/2yNKAQ9NuxgN5D40HcXzxqCDQCI=
 github.com/danielpaulus/quicktime_video_hack v0.0.0-20220824183516-d27a07d90cb5 h1:66UOFBPmaTj5w1bMHapFsAg39wjmoQ7Xe4IF/uC/ioc=
 github.com/danielpaulus/quicktime_video_hack v0.0.0-20220824183516-d27a07d90cb5/go.mod h1:2F3SNucTdnBU9gXlhpc5cglSr6VTyCnHO6r5I8GSdX8=
+github.com/danielpaulus/quicktime_video_hack v0.0.0-20230504104950-d81396e2e775 h1:kJrMG7TuxJwLbY6mZBAWOFa3hjrj2/5Z85RQuk5FJyM=
+github.com/danielpaulus/quicktime_video_hack v0.0.0-20230504104950-d81396e2e775/go.mod h1:2F3SNucTdnBU9gXlhpc5cglSr6VTyCnHO6r5I8GSdX8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -28,6 +30,8 @@ github.com/golang/mock v1.2.0/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfb
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/google/gousb v0.0.0-20190812193832-18f4c1d8a750 h1:DVKHLo3yE4psTjD9aM2pY7EHoicaQbgmaxxvvHC6ZSM=
 github.com/google/gousb v0.0.0-20190812193832-18f4c1d8a750/go.mod h1:Tl4HdAs1ThE3gECkNwz+1MWicX6FXddhJEw7L8jRDiI=
+github.com/google/gousb v1.1.2 h1:1BwarNB3inFTFhPgUEfah4hwOPuDz/49I0uX8XNginU=
+github.com/google/gousb v1.1.2/go.mod h1:GGWUkK0gAXDzxhwrzetW592aOmkkqSGcj5KLEgmCVUg=
 github.com/google/gousb v2.1.0+incompatible h1:ApzMDjF3FeO219QwWybJxYfFhXQzPLOEy0o+w9k5DNI=
 github.com/google/gousb v2.1.0+incompatible/go.mod h1:Tl4HdAs1ThE3gECkNwz+1MWicX6FXddhJEw7L8jRDiI=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
