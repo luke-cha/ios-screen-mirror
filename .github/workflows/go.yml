@@ -12,59 +12,46 @@ jobs:
     name: Build
     runs-on: macos-latest
     steps:
-    - name: Install llvm for clang by homebrew
-      run: brew install llvm
-
     - name: Install libusb by homebrew
       run: brew install libusb
-
-    - name: Install binutils by homebrew
-      run: brew install binutils
 
     - name: Install pkg-config by homebrew
       run: brew install pkg-config
 
-    - name: Install ffmpeg@4 by homebrew
-      run: brew install ffmpeg@4
+    - name: Install ffmpeg by homebrew
+      run: brew install ffmpeg
 
     - name: Install librarys by homebrew
       run: brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
 
-    - name: Set up Go
+    - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        go-version: '1.20'  # 또는 더 최신 버전
+        go-version: ^1.14.4
       id: go
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
     - name: Get dependencies
-      env:
-        PATH: "/usr/local/opt/ffmpeg@4/bin:$PATH"
-        LDFLAGS: "-L/usr/local/opt/ffmpeg@4/lib"
-        CPPFLAGS: "-I/usr/local/opt/ffmpeg@4/include"
-        PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
       run: |
-        go mod tidy
-        go mod download
+        go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
 
     - name: Build
-      env:
-        PATH: "/usr/local/opt/llvm/bin:/usr/local/opt/binutils/bin:/usr/local/opt/ffmpeg@4/bin:$PATH"
-        LDFLAGS: "-L/usr/local/opt/binutils/lib -L/usr/local/opt/ffmpeg@4/lib -L/usr/local/opt/llvm/lib"
-        CPPFLAGS: "-I/usr/local/opt/binutils/include -I/usr/local/opt/llvm/include -I/usr/local/opt/ffmpeg@4/include"
-        PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
-      run: go build -o ios-screen-mirror
+      run: go build -v -o ios-screen-mirror
 
     - name: Test
-      run: go test .
+      run: go test -v .
+
+    - run: ls -al
+
+    - uses: actions/checkout@v2
 
     - uses: actions/upload-artifact@v2
       with:
         name: ios-screen-mirror
-        path: ios-screen-mirror
+        path: "ios-screen-mirror"
