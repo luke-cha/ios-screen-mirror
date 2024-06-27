@@ -19,7 +19,7 @@ jobs:
       run: brew install pkg-config
 
     - name: Install ffmpeg by homebrew
-      run: brew install ffmpeg
+      run: brew install ffmpeg@4
 
     - name: Install librarys by homebrew
       run: brew install gstreamer gst-plugins-bad gst-plugins-good gst-plugins-base gst-plugins-ugly
